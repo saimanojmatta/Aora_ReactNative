@@ -1,27 +1,38 @@
 import SearchInput from '@/components/SearchInput'
 import { images } from '@/constants'
-import { FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { Button, FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Trending from '../../components/Trending'
 import EmptyState from '@/components/EmptyState'
 import { useState } from 'react'
+import useAppwrite from '@/lib/useAppwrite'
+import { GetAllPosts, Post,GetLatestPosts } from '@/lib/appwrite'
+import VideoCard from '@/components/VideoCard'
+
 const Home = () => {
+  const{data:posts,refetch}=useAppwrite<Post>(GetAllPosts)
+  const{data:LatestPost}=useAppwrite<Post>(GetLatestPosts)
   const[refreshing,SetRefreshing]=useState(false)
   const onRefresh=async()=>{
     SetRefreshing(true)
-    
+    await refetch()
+    SetRefreshing(false)
   }
   return (
    <SafeAreaView className='bg-primary '>
     <FlatList
-      data={[{id:'1',name:'manoj',company:'devdolphins'},{id:'2',name:'manoj',company:'devdolphins'},{id:'3',name:'manoj',company:'devdolphins'}]} 
-      keyExtractor={(item)=>item.id}
+      data={posts} 
+      keyExtractor={(item)=>item.$id}
       renderItem={({item})=>(
-        <>
-        <Text className='text-3xl'>{item.id}</Text>
-        <Text className='text-3xl'>{item.name}</Text>
-        <Text className='text-3xl'>{item.company}</Text>
-        </>
+        <VideoCard
+        title={item.type}
+        thumbnail={item.thumbnail}
+        video={item.video}
+        creator={item.creator.username}
+        avatar={item.creator.avatar}
+
+        />
+        
       )}
       ListHeaderComponent={()=>(
         <View className='flex my-6 px-4 space-y-6 '>
@@ -47,7 +58,7 @@ const Home = () => {
             <Text className='ext-lg font-pregular text-gray-100 mb-3'>
               Latest Vidoes
             </Text>
-            <Trending posts={[{ id: '1' }, { id: '2' }, { id: '3' }]}/>
+            <Trending posts={LatestPost??[]}/>
           </View>
         </View>
   )}

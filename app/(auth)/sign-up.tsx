@@ -1,12 +1,14 @@
 import CustomButton from '@/components/CustomButton'
 import FormField from '@/components/FormField'
 import { images } from '@/constants'
+import { useGlobalContext } from '@/context/GlobalContext'
 import { createUser } from '@/lib/appwrite'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import {  Alert, Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 const SignUp = () => {
+  const{setUser,setIsloggedIn}=useGlobalContext()
  const[form,SetForm]=useState({
   username:'',
   email:'',
@@ -20,7 +22,9 @@ const SignUp = () => {
   setIsSubmitting(true)
   try {
     const result=await createUser(form.email,form.password,form.username)
-    //set it to global state
+    console.log('Loggin the result ofa user',result)
+    setUser(result)
+    setIsloggedIn(true)
     router.replace('/home')
     
   } catch (error) {

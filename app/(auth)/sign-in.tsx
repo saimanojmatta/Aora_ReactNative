@@ -5,8 +5,10 @@ import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import {  Alert, Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Signin } from '@/lib/appwrite'
+import { GetCurrentUser, Signin } from '@/lib/appwrite'
+import { useGlobalContext } from '@/context/GlobalContext'
 const SignIn = () => {
+  const{setUser,setIsloggedIn}=useGlobalContext()
  const[form,SetForm]=useState({
   email:'',
   password:"",
@@ -19,9 +21,11 @@ const SignIn = () => {
   setIsSubmitting(true)
   try {
     await Signin(form.email,form.password)
-    //set it to global state
+    const result=await GetCurrentUser()
+    setUser(result)
+    setIsloggedIn(true)
+    Alert.alert("Success", "User signed in successfully");
     router.replace('/home')
-    
   } catch (error) {
     console.log(error)
     if(error instanceof Error){
@@ -43,7 +47,7 @@ const SignIn = () => {
           <Text className='text-2xl font-semibold text-white mt-10 font-psemibold'>Log in to Aora
           </Text>
           <FormField
-           title="Email"
+           title="email"
            value={form.email}
            handleChangeText={(e)=>SetForm({...form,email:e})}
            otherStyles='mt-7'
